@@ -4,17 +4,19 @@ import "./globals.css";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["400"],
   style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500"],
   variable: "--font-sans",
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -39,6 +41,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/_next/image?url=%2Fprojects%2Flynk%20and%20go%2Flynk1.webp&w=1920&q=55"
+          fetchPriority="high"
+        />
+      </head>
       <body
         className={`${fraunces.variable} ${inter.variable}`}
         style={{

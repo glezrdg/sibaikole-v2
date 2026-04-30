@@ -1,17 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValue,
-  useSpring,
-  AnimatePresence,
-} from "framer-motion";
-import Lenis from "lenis";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─────────────────────────────────────────────────────────────
 // Palette (mantener identidad nueva propuesta)
@@ -59,117 +51,9 @@ const STATS = [
 // ─────────────────────────────────────────────────────────────
 // Smooth scroll (Lenis)
 // ─────────────────────────────────────────────────────────────
-function useSmoothScroll() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return; // skip on touch
-    const lenis = new Lenis({
-      duration: 0.7,
-      easing: (t: number) => 1 - Math.pow(1 - t, 3),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
-    });
-    let raf = 0;
-    const onFrame = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(onFrame);
-    };
-    raf = requestAnimationFrame(onFrame);
-    return () => {
-      cancelAnimationFrame(raf);
-      lenis.destroy();
-    };
-  }, []);
-}
+// Lenis removed — native scroll for performance
 
-// ─────────────────────────────────────────────────────────────
-// Custom cursor (reads context)
-// ─────────────────────────────────────────────────────────────
-function CustomCursor() {
-  const x = useMotionValue(-100);
-  const y = useMotionValue(-100);
-  const sx = useSpring(x, { stiffness: 500, damping: 38, mass: 0.25 });
-  const sy = useSpring(y, { stiffness: 500, damping: 38, mass: 0.25 });
-  const [variant, setVariant] = useState<"default" | "view" | "read" | "input">("default");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(pointer: coarse)").matches) return; // skip on touch devices
-
-    let lastVariant: typeof variant = "default";
-    let raf = 0;
-    let nextX = -100;
-    let nextY = -100;
-
-    const flush = () => {
-      x.set(nextX);
-      y.set(nextY);
-      raf = 0;
-    };
-    const move = (e: MouseEvent) => {
-      nextX = e.clientX;
-      nextY = e.clientY;
-      if (!raf) raf = requestAnimationFrame(flush);
-    };
-    const over = (e: MouseEvent) => {
-      const t = e.target as HTMLElement | null;
-      if (!t) return;
-      let v: typeof variant = "default";
-      if (t.closest('[data-cursor="view"]')) v = "view";
-      else if (t.closest("input, textarea")) v = "input";
-      else if (t.closest('[data-cursor="read"], a, button')) v = "read";
-      if (v !== lastVariant) {
-        lastVariant = v;
-        setVariant(v);
-      }
-    };
-    window.addEventListener("mousemove", move, { passive: true });
-    window.addEventListener("mouseover", over, { passive: true });
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseover", over);
-    };
-  }, [x, y]);
-
-  const size = variant === "view" ? 88 : variant === "input" ? 24 : variant === "read" ? 14 : 12;
-
-  return (
-    <motion.div
-      aria-hidden
-      className="fixed top-0 left-0 z-[100] pointer-events-none hidden md:flex items-center justify-center"
-      style={{
-        x: sx,
-        y: sy,
-        translateX: "-50%",
-        translateY: "-50%",
-        willChange: "transform",
-      }}
-    >
-      <motion.div
-        animate={{ width: size, height: size }}
-        transition={{ type: "spring", stiffness: 260, damping: 26 }}
-        className="rounded-full flex items-center justify-center"
-        style={{
-          background: variant === "input" ? C.bone : variant === "view" ? "rgba(176,141,87,0.95)" : "rgba(245,245,240,0.9)",
-          border: "none",
-          willChange: "width, height",
-        }}
-      >
-        {variant === "view" && (
-          <span
-            className="text-[10px] tracking-[0.22em] uppercase"
-            style={{ color: C.ink, fontFamily: "var(--font-sans)" }}
-          >
-            Ver
-          </span>
-        )}
-      </motion.div>
-    </motion.div>
-  );
-}
+// CustomCursor removed for performance — native cursor
 
 // ─────────────────────────────────────────────────────────────
 // Header
@@ -269,27 +153,16 @@ function Hero() {
           priority
           fetchPriority="high"
           sizes="100vw"
-          quality={65}
+          quality={55}
           className="object-cover"
         />
       </div>
-      {/* Base global overlay */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "rgba(2,2,2,0.45)" }}
-      />
-      {/* Vertical gradient — reinforce top and bottom */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `linear-gradient(to bottom, rgba(2,2,2,0.7) 0%, rgba(2,2,2,0.25) 30%, rgba(2,2,2,0.25) 55%, rgba(2,2,2,0.95) 100%)`,
-        }}
-      />
-      {/* Radial vignette behind the centered logo — stronger */}
+      {/* Single combined overlay for performance */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 75% 55% at 50% 50%, rgba(2,2,2,0.78) 0%, rgba(2,2,2,0.35) 50%, rgba(2,2,2,0) 80%)`,
+          background:
+            "radial-gradient(ellipse 75% 55% at 50% 50%, rgba(2,2,2,0.85) 0%, rgba(2,2,2,0.55) 40%, rgba(2,2,2,0.6) 70%, rgba(2,2,2,0.95) 100%)",
         }}
       />
 
@@ -368,44 +241,29 @@ function Hero() {
 // MANIFESTO — single sentence, scroll-reveal mask
 // ─────────────────────────────────────────────────────────────
 function Manifesto() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 0.85", "end 0.65"],
-  });
-  // Words appear progressively as we scroll, with overlap and a faster gold line
-  const lines: Array<
-    { text: string; start: number; end: number; gold?: boolean }
-  > = [
-    { text: "Construimos", start: 0.0, end: 0.28 },
-    { text: "lo que otros", start: 0.18, end: 0.46 },
-    { text: "sólo dibujan.", start: 0.36, end: 0.6, gold: true },
-  ];
   return (
     <section
-      ref={ref}
       className="relative px-6 md:px-10 py-44 md:py-64"
       style={{ background: C.ink, color: C.bone }}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         className="max-w-[1280px] mx-auto leading-[0.96] tracking-[-0.02em]"
         style={{
           fontFamily: "var(--font-display)",
-          fontWeight: 300,
+          fontWeight: 400,
           fontSize: "clamp(2.8rem, 9.2vw, 9rem)",
         }}
       >
-        {lines.map((line, idx) => (
-          <ManifestoLine
-            key={idx}
-            text={line.text}
-            gold={!!line.gold}
-            progress={scrollYProgress}
-            start={line.start}
-            end={line.end}
-          />
-        ))}
-      </div>
+        <span className="block">Construimos</span>
+        <span className="block">lo que otros</span>
+        <span className="block" style={{ color: C.gold, fontStyle: "italic" }}>
+          sólo dibujan.
+        </span>
+      </motion.div>
       <div
         className="mt-24 max-w-[1280px] mx-auto flex items-center gap-3 text-[10px] tracking-[0.24em] uppercase"
         style={{ color: C.mute }}
@@ -414,37 +272,6 @@ function Manifesto() {
         Manifiesto · MMXXVI
       </div>
     </section>
-  );
-}
-
-function ManifestoLine({
-  text,
-  gold,
-  progress,
-  start,
-  end,
-}: {
-  text: string;
-  gold: boolean;
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-  start: number;
-  end: number;
-}) {
-  const reveal = useTransform(progress, [start, end], ["0%", "100%"]);
-  return (
-    <div className="block relative overflow-hidden py-1">
-      <span style={{ color: gold ? C.gold + "30" : C.bone + "20" }}>{text}</span>
-      <motion.span
-        className="absolute inset-0 whitespace-nowrap"
-        style={{
-          width: reveal,
-          color: gold ? C.gold : C.bone,
-          overflow: "hidden",
-        }}
-      >
-        {text}
-      </motion.span>
-    </div>
   );
 }
 
@@ -1093,10 +920,8 @@ function Footer() {
 // PAGE
 // ─────────────────────────────────────────────────────────────
 export default function V2Page() {
-  useSmoothScroll();
   return (
     <>
-      <CustomCursor />
       <Header />
       <main>
         <Hero />
