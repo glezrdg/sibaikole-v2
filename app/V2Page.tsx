@@ -63,9 +63,10 @@ function useSmoothScroll() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return; // skip on touch
     const lenis = new Lenis({
-      duration: 0.9,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 0.7,
+      easing: (t: number) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1.5,
@@ -266,8 +267,9 @@ function Hero() {
           alt="Sibaikole — Lynk & Co"
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
-          quality={75}
+          quality={65}
           className="object-cover"
         />
       </div>
