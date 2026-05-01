@@ -146,15 +146,15 @@ function Hero() {
       style={{ height: "100dvh", minHeight: 720, background: C.ink }}
     >
       <div className="absolute inset-0">
-        <Image
-          src="/projects/lynk and go/lynk1.webp"
-          alt="Sibaikole — Lynk & Co"
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          quality={55}
-          className="object-cover"
+        <video
+          src="/projects/lynk and go/lynk1_compressed.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/projects/lynk and go/lynk1.webp"
+          className="w-full h-full object-cover"
         />
       </div>
       {/* Single combined overlay for performance */}
