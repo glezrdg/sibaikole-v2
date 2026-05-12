@@ -13,8 +13,8 @@ const IMAGES = [
   "public/images/bar-remodelacion.png",
 ];
 
-const MAX_WIDTH = 1920;
-const QUALITY = 72;
+const MAX_WIDTH = 2400;
+const QUALITY = 88;
 
 async function fileSize(p) {
   const s = await stat(p);

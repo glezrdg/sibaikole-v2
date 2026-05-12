@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import { Header, Footer } from "./V2Page";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
+  weight: ["300", "400", "500"],
+  variable: "--font-sans",
   display: "swap",
   preload: true,
 });
 
-const inter = Inter({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
-  variable: "--font-sans",
+  variable: "--font-mono",
   display: "swap",
   preload: true,
 });
@@ -34,6 +34,11 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: "#0B0B0B",
+  colorScheme: "dark" as const,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -41,25 +46,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/_next/image?url=%2Fprojects%2Flynk%20and%20go%2Flynk1.webp&w=1920&q=55"
-          fetchPriority="high"
-        />
-      </head>
       <body
-        className={`${fraunces.variable} ${inter.variable}`}
+        className={`${inter.variable} ${mono.variable}`}
         style={{
           fontFamily: "var(--font-sans)",
-          background: "#020202",
-          color: "#F8F8F8",
+          background: "#0B0B0B",
+          color: "#F5F2EC",
           minHeight: "100dvh",
           margin: 0,
         }}
       >
-        {children}
+        <Header />
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );
